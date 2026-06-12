@@ -157,7 +157,8 @@ def visualize(frame_rgb):
         target=target,
         lane_left=lane_left,
         lane_right=lane_right,
-    )
+        image_height=image_height,
+    )   
 
     # Drive wheels.
     game_over = wheels.is_game_over() if wheels is not None else False
