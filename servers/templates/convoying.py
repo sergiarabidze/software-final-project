@@ -23,7 +23,7 @@ _EXTRA_CSS = '''
     margin-bottom: 6px;
     font-size: 12px;
 }
-.speed-bar-label { width: 38px; color: var(--text-muted); flex-shrink: 0; }
+.speed-bar-label { width: 62px; color: var(--text-muted); flex-shrink: 0; }
 .speed-bar-track {
     flex: 1;
     height: 8px;
@@ -38,7 +38,7 @@ _EXTRA_CSS = '''
     background: var(--accent-blue);
     transition: width 0.15s;
 }
-.speed-bar-value { width: 38px; text-align: right; color: var(--text-secondary); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.speed-bar-value { width: 46px; text-align: right; color: var(--text-secondary); flex-shrink: 0; font-variant-numeric: tabular-nums; }
 
 .model-status { padding: 6px 10px; border-radius: 4px; font-size: 12px; margin-bottom: 10px; }
 .model-status.ok  { background: rgba(63,185,80,0.1);  border: 1px solid rgba(63,185,80,0.3);  color: var(--accent-green); }
@@ -50,9 +50,9 @@ _EXTRA_CSS = '''
 .key-display {
     display: grid;
     grid-template-areas: ". up ." "left down right";
-    gap: 4px;
+    gap: 6px;
     justify-content: center;
-    margin: 8px 0 4px;
+    margin: 10px 0 6px;
 }
 .key-box {
     width: 32px;
@@ -79,7 +79,8 @@ _EXTRA_CSS = '''
 .key-right { grid-area: right; }
 .drive-row {
     display: flex;
-    gap: 10px;
+    align-items: stretch;
+    gap: 8px;
     margin-bottom: 8px;
 }
 .drive-row .button {
@@ -96,20 +97,20 @@ _CONTENT = '''
 
         <div class="controls-section">
 
-            <!-- Drive Control -->
+            <!-- Control Panel -->
             <div class="card">
-                <div class="card-header">Drive Control</div>
+                <div class="card-header">Control Panel</div>
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
                     <span id="run-indicator" style="width:14px;height:14px;border-radius:50%;background:#e74c3c;flex-shrink:0;display:inline-block"></span>
                     <span id="run-label" style="font-size:14px;font-weight:600;color:var(--text-secondary)">STOPPED</span>
                 </div>
                 <div class="drive-row">
-                    <button class="button success" onclick="post('/start')">Start</button>
-                    <button class="button danger"  onclick="post('/stop')">Stop</button>
+                    <button class="button success" onclick="post('/start')">Start Run</button>
+                    <button class="button danger"  onclick="post('/stop')">Stop Run</button>
                 </div>
                 <div class="drive-row">
-                    <button class="button" id="mode-btn" onclick="toggleMode()" style="background:#555">Manual</button>
-                    <button class="button" onclick="post('/reset')" style="background:#444">Reset</button>
+                    <button class="button" id="mode-btn" onclick="toggleMode()" style="background:#555">Manual Mode</button>
+                    <button class="button" onclick="post('/reset')" style="background:#444">Reset State</button>
                 </div>
                 <div id="key-panel" style="display:none">
                     <div class="key-display">
@@ -118,72 +119,72 @@ _CONTENT = '''
                         <div class="key-box key-down"  id="key-down">&#9660;</div>
                         <div class="key-box key-right" id="key-right">&#9654;</div>
                     </div>
-                    <p style="text-align:center;font-size:11px;color:var(--text-muted);margin:4px 0 0">Arrow keys or WASD</p>
+                    <p style="text-align:center;font-size:11px;color:var(--text-muted);margin:4px 0 0">Use arrow keys or WASD</p>
                 </div>
                 <div id="ctrl-status" class="status"></div>
             </div>
 
             <!-- Model Status -->
             <div class="card">
-                <div class="card-header">System</div>
-                <div id="model-status" class="model-status loading">Loading detection model...</div>
+                <div class="card-header">System Info</div>
+                <div id="model-status" class="model-status loading">Loading model...</div>
                 <div class="config-item">
-                    <span class="config-label">Host</span>
+                    <span class="config-label">Server</span>
                     <span class="config-value">{{ hostname }}</span>
                 </div>
                 <div class="config-item">
-                    <span class="config-label">Lane frames</span>
+                    <span class="config-label">Lane Frames</span>
                     <span class="config-value" id="lane-frames">0</span>
                 </div>
             </div>
 
             <!-- Target Status -->
             <div class="card">
-                <div class="card-header">Target Truck</div>
+                <div class="card-header">Lead Truck</div>
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                    <span style="font-size:13px;color:var(--text-secondary)">Distance state</span>
+                    <span style="font-size:13px;color:var(--text-secondary)">Distance</span>
                     <span id="distance-badge" class="distance-badge LOST">LOST</span>
                 </div>
                 <div class="stats-grid" style="grid-template-columns:1fr 1fr 1fr;">
                     <div class="stat-box">
                         <div class="stat-value" id="target-score">—</div>
-                        <div class="stat-label">Score</div>
+                        <div class="stat-label">Confidence</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-value" id="target-area">—</div>
-                        <div class="stat-label">Area px²</div>
+                        <div class="stat-label">Box Area</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-value" id="target-bottom">—</div>
-                        <div class="stat-label">Bottom Y</div>
+                        <div class="stat-label">Bottom</div>
                     </div>
                 </div>
-                <div class="reason-text" id="target-reason">waiting for detections...</div>
+                <div class="reason-text" id="target-reason">waiting for target...</div>
             </div>
 
             <!-- Speeds -->
             <div class="card">
                 <div class="card-header">
-                    Wheel Speeds
+                    Wheel Output
                     <span id="multiplier-badge" style="font-size:11px;font-weight:400;color:var(--text-muted)">×1.00</span>
                 </div>
                 <div class="speed-bar-row">
-                    <span class="speed-bar-label">Lane L</span>
+                    <span class="speed-bar-label">Lane Left</span>
                     <div class="speed-bar-track"><div class="speed-bar-fill" id="bar-lane-l" style="width:0%"></div></div>
                     <span class="speed-bar-value" id="val-lane-l">0.000</span>
                 </div>
                 <div class="speed-bar-row">
-                    <span class="speed-bar-label">Lane R</span>
+                    <span class="speed-bar-label">Lane Right</span>
                     <div class="speed-bar-track"><div class="speed-bar-fill" id="bar-lane-r" style="width:0%"></div></div>
                     <span class="speed-bar-value" id="val-lane-r">0.000</span>
                 </div>
                 <div class="speed-bar-row" style="margin-top:6px">
-                    <span class="speed-bar-label">Final L</span>
+                    <span class="speed-bar-label">Output Left</span>
                     <div class="speed-bar-track"><div class="speed-bar-fill" id="bar-final-l" style="width:0%;background:var(--accent-green)"></div></div>
                     <span class="speed-bar-value" id="val-final-l">0.000</span>
                 </div>
                 <div class="speed-bar-row">
-                    <span class="speed-bar-label">Final R</span>
+                    <span class="speed-bar-label">Output Right</span>
                     <div class="speed-bar-track"><div class="speed-bar-fill" id="bar-final-r" style="width:0%;background:var(--accent-green)"></div></div>
                     <span class="speed-bar-value" id="val-final-r">0.000</span>
                 </div>
@@ -192,10 +193,10 @@ _CONTENT = '''
 
             <!-- Tuning -->
             <div class="card">
-                <div class="card-header">Speed Multipliers</div>
+                <div class="card-header">Speed Tuning</div>
                 <div class="slider-group">
                     <div class="slider-label">
-                        <span>Close (slow down)</span>
+                        <span>Close Target</span>
                         <span id="close-val">0.40</span>
                     </div>
                     <div class="slider-controls">
@@ -205,7 +206,7 @@ _CONTENT = '''
                 </div>
                 <div class="slider-group">
                     <div class="slider-label">
-                        <span>Good (maintain)</span>
+                        <span>Good Distance</span>
                         <span id="good-val">1.00</span>
                     </div>
                     <div class="slider-controls">
@@ -215,7 +216,7 @@ _CONTENT = '''
                 </div>
                 <div class="slider-group">
                     <div class="slider-label">
-                        <span>Far (catch up)</span>
+                        <span>Far Target</span>
                         <span id="far-val">1.20</span>
                     </div>
                     <div class="slider-controls">
@@ -225,7 +226,7 @@ _CONTENT = '''
                 </div>
                 <div class="slider-group">
                     <div class="slider-label">
-                        <span>Lead truck speed</span>
+                        <span>Leader Speed</span>
                         <span id="leader-speed-val">0.140</span>
                     </div>
                     <div class="slider-controls">
@@ -290,7 +291,7 @@ function setManualUI(enabled) {
     const panel = document.getElementById('key-panel');
 
     if (btn) {
-        btn.textContent = _manualMode ? 'Auto' : 'Manual';
+        btn.textContent = _manualMode ? 'Auto Mode' : 'Manual Mode';
     }
 
     if (panel) {
@@ -308,7 +309,7 @@ function toggleMode() {
     postJSON('/set_mode', {mode: nextMode ? 'manual' : 'auto'})
         .then(data => {
             setManualUI(!!data.manual_mode);
-            showStatus('ctrl-status', data.status || (data.manual_mode ? 'manual' : 'auto'), 'success');
+            showStatus('ctrl-status', data.status || (data.manual_mode ? 'Manual mode active' : 'Auto mode active'), 'success');
             if (!data.manual_mode) {
                 sendKeys();
             }
@@ -374,20 +375,20 @@ function updateStatus() {
             setManualUI(manual);
             document.getElementById('run-indicator').style.background = running ? '#3fb950' : '#e74c3c';
             document.getElementById('run-label').textContent = running
-                ? (manual ? 'RUNNING — MANUAL' : 'RUNNING')
-                : (manual ? 'STOPPED — MANUAL' : 'STOPPED');
+                ? (manual ? 'RUNNING · MANUAL' : 'RUNNING')
+                : (manual ? 'STOPPED · MANUAL' : 'STOPPED');
 
             // Model
             const modelEl = document.getElementById('model-status');
             if (data.model_loaded) {
                 modelEl.className = 'model-status ok';
-                modelEl.textContent = '✓ Detection model loaded';
+                modelEl.textContent = '✓ Model loaded';
             } else if (data.model_load_error) {
                 modelEl.className = 'model-status err';
                 modelEl.textContent = '✗ ' + data.model_load_error;
             } else {
                 modelEl.className = 'model-status loading';
-                modelEl.textContent = 'Loading detection model...';
+                modelEl.textContent = 'Loading model...';
             }
 
             document.getElementById('lane-frames').textContent = data.lane_frame_count || 0;
@@ -436,8 +437,8 @@ function sendConfig() {
         leader_speed:     parseFloat(document.getElementById('leader-speed-slider').value),
     };
     postJSON('/update_config', data)
-        .then(() => showStatus('tune-status', 'Config updated', 'success'))
-        .catch(() => showStatus('tune-status', 'Update failed', 'error'));
+        .then(() => showStatus('tune-status', 'Tuning updated', 'success'))
+        .catch(() => showStatus('tune-status', 'Tuning update failed', 'error'));
 }
 
 setInterval(updateStatus, 300);
@@ -446,8 +447,8 @@ updateStatus();
 
 
 CONVOYING_TEMPLATE = render_template(
-    title    = "Convoying — Truck Following",
-    subtitle = "Lane servoing handles steering · Convoying adjusts speed based on truck distance",
+    title    = "Convoy Control — Lead Truck Tracking",
+    subtitle = "Lane steering stays active · speed adapts to the lead truck distance",
     content_html = _CONTENT,
     extra_css    = _EXTRA_CSS,
     extra_js     = _EXTRA_JS,
