@@ -41,7 +41,7 @@ convoy_controller = None
 red_line_gate = None
 
 running = False
-leader_speed = 0.140
+leader_speed = 0.100
 manual_mode = False
 keys_pressed = {
     'up': False,
@@ -332,6 +332,8 @@ def stop():
 
     if wheels is not None:
         wheels.set_wheels_speed(0.0, 0.0)
+        if hasattr(wheels, 'set_leader_speed'):
+            wheels.set_leader_speed(0.0)
 
     _clear_manual_keys()
 
@@ -355,7 +357,7 @@ def reset():
         wheels.set_wheels_speed(0.0, 0.0)
         wheels.reset_game()
         if hasattr(wheels, 'set_leader_speed'):
-            wheels.set_leader_speed(leader_speed)
+            wheels.set_leader_speed(0.0)
 
     _clear_manual_keys()
 
@@ -471,7 +473,7 @@ def update_config():
     if 'leader_speed' in data:
         leader_speed = max(0.0, min(0.25, float(data['leader_speed'])))
         if wheels is not None and hasattr(wheels, 'set_leader_speed'):
-            wheels.set_leader_speed(leader_speed)
+            wheels.set_leader_speed(leader_speed if running else 0.0)
 
     return jsonify({
         'close_multiplier': convoy_controller.close_multiplier if convoy_controller else None,
