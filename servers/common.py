@@ -47,7 +47,9 @@ def make_frame_generator(get_camera, visualize, quality=70, rgb=True):
                        + jpeg.tobytes() + b'\r\n')
 
             except Exception as e:
+                import traceback
                 print(f'[VideoStream] Error: {e}')
+                traceback.print_exc()
                 time.sleep(0.05)
 
     return generate

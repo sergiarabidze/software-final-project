@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Optional, Tuple
+from dataclasses import dataclass, field
+from typing import List, Optional, Tuple
 
 BBox = Tuple[int, int, int, int]
 
@@ -22,6 +22,11 @@ class TargetInfo:
     class_id: Optional[int]
     distance_state: str
     reason: str
+    # Dot-grid fields (optional — default-safe so old code still works)
+    dot_count: int = 0
+    dot_column: Optional[int] = None          # 1-7; 4 = centre
+    dot_centers: List[Tuple[float, float]] = field(default_factory=list)
+    tracking_state: str = "SEARCH"            # DOTS / GRACE / SEARCH
 
 
 @dataclass

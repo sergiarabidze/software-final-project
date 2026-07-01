@@ -222,12 +222,10 @@ def visualize(frame_rgb):
 
     # Simulation fallback: detect visible blue lead truck if YOLO misses it.
     # Use last VALID target, not last frame target, because last frame may be LOST.
-    detections = _add_blue_truck_fallback(frame_rgb, detections, _last_valid_target)
-
-    # Target tracking.
+    # Target tracking — camera-based dot-grid detection.
     if tracker is not None:
         target = tracker.update(
-            detections=detections,
+            frame_rgb=frame_rgb,
             image_height=image_height,
             image_width=image_width,
         )

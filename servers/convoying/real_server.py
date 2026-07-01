@@ -241,10 +241,10 @@ def visualize(frame_bgr):
     with _detection_lock:
         detections = list(_last_detections)
 
-    # Target tracking.
+    # Target tracking — camera-based dot-grid detection, no object model needed.
     if tracker is not None:
         target = tracker.update(
-            detections=detections,
+            frame_rgb=frame_rgb,
             image_height=image_height,
             image_width=image_width,
         )
@@ -412,6 +412,30 @@ def set_mode():
         'manual_mode': manual_mode,
         'running': running,
     })
+
+
+@app.route('/manual/enable', methods=['POST'])
+def manual_enable():
+    """Alias for set_mode(manual) — keeps compatibility with older templates."""
+    global manual_mode
+    manual_mode = True
+    _clear_manual_keys()
+    if wheels is not None:
+        wheels.set_wheels_speed(0.0, 0.0)
+    print("[Convoying] Mode: manual (via /manual/enable)")
+    return jsonify({'status': 'manual', 'manual_mode': True})
+
+
+@app.route('/manual/disable', methods=['POST'])
+def manual_disable():
+    """Alias for set_mode(auto) — keeps compatibility with older templates."""
+    global manual_mode
+    manual_mode = False
+    _clear_manual_keys()
+    if wheels is not None:
+        wheels.set_wheels_speed(0.0, 0.0)
+    print("[Convoying] Mode: auto (via /manual/disable)")
+    return jsonify({'status': 'auto', 'manual_mode': False})
 
 
 @app.route('/keys', methods=['POST'])

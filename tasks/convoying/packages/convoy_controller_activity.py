@@ -26,12 +26,12 @@ class ConvoyController:
 
     def __init__(
         self,
-        close_multiplier: float = 0.05,
-        good_multiplier: float = 0.35,
-        far_multiplier: float = 0.60,
-        max_speed: float = 0.13,
+        close_multiplier: float = 0.10,
+        good_multiplier: float = 0.55,
+        far_multiplier: float = 0.85,
+        max_speed: float = 0.40,
         lost_grace_frames: int = 35,
-        lost_grace_multiplier: float = 0.25,
+        lost_grace_multiplier: float = 0.40,
 
         # Leader-only steering settings.
         leader_steering_gain: float = 1.25,
@@ -70,38 +70,13 @@ class ConvoyController:
             if target.distance_state == TOO_CLOSE:
                 return self._stop("target_too_close_stop")
 
-            # Main red-line / crossroad fix:
-            # When lane following is disabled, ignore lane_left/lane_right completely.
-            if lane_disabled:
-                return self._leader_only_command(
-                    target=target,
-                    image_width=image_width,
-                )
-
-            # Normal lane-following behavior.
-            if target.distance_state == CLOSE:
-                return self._scale(
-                    lane_left,
-                    lane_right,
-                    self.close_multiplier,
-                    "target_close_slow_down_lane_following",
-                )
-
-            if target.distance_state == GOOD:
-                return self._scale(
-                    lane_left,
-                    lane_right,
-                    self.good_multiplier,
-                    "good_distance_lane_following",
-                )
-
-            if target.distance_state == FAR:
-                return self._scale(
-                    lane_left,
-                    lane_right,
-                    self.far_multiplier,
-                    "target_far_speed_up_lane_following",
-                )
+            # Always steer directly toward the leader when we have a target.
+            # _scale(lane_left, lane_right, ...) fails silently when lane
+            # markings aren't found and both values are 0.
+            return self._leader_only_command(
+                target=target,
+                image_width=image_width,
+            )
 
         # Target is lost.
         self._lost_frames += 1
@@ -117,8 +92,8 @@ class ConvoyController:
 
         if self._last_distance_state == CLOSE and self._lost_frames <= 15:
             return self._scale(
-                lane_left,
-                lane_right,
+                max(0.0, lane_left),
+                max(0.0, lane_right),
                 0.25,
                 "target_lost_after_close_creep_forward",
             )
@@ -128,8 +103,8 @@ class ConvoyController:
 
         if self._had_target and self._lost_frames <= self.lost_grace_frames:
             return self._scale(
-                lane_left,
-                lane_right,
+                max(0.0, lane_left),
+                max(0.0, lane_right),
                 self.lost_grace_multiplier,
                 "target_temporarily_lost_keep_lane_slowly",
             )
